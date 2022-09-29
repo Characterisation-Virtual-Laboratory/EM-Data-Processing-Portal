@@ -1,0 +1,121 @@
+all:
+  children:
+    BastionNodes:
+      hosts:
+        gerp-qcif-bastion0: {}
+    ComputeNodes:
+      hosts:
+        gerp-qcif-node00: {}
+        gerp-qcif-node01: {}
+        gerp-qcif-node02: {}
+        gerp-qcif-node03: {}
+        gerp-qcif-node04: {}
+        gerp-qcif-node05: {}
+        gerp-qcif-node06: {}
+        gerp-qcif-node07: {}
+        gerp-qcif-node08: {}
+        gerp-qcif-node09: {}
+        gerp-qcif-node10: {}
+        gerp-qcif-node11: {}
+    LdapNodes:
+      hosts:
+        gerp-qcif-login0: {}
+        gerp-qcif-login1: {}
+    LoginNodes:
+      hosts:
+        gerp-qcif-globus: {}
+        gerp-qcif-login0: {}
+        gerp-qcif-login1: {}
+    ManagementNodes:
+      hosts:
+        gerp-qcif-login0: {}
+        gerp-qcif-login1: {}
+    NFSNodes:
+      hosts:
+        gerp-qcif-nfs: {}
+    SQLNodes:
+      hosts:
+        gerp-qcif-sql0: {}
+    hostvars:
+      hosts:
+        gerp-qcif-bastion0:
+          ansible_host: xxx.xxx.xxx.xxx
+          ansible_user: ubuntu
+          public_host: xxx.xxx.xxx.xxx
+        gerp-qcif-globus:
+          ansible_host: xxx.xxx.xxx.xxx
+          ansible_user: ubuntu
+          public_host: xxx.xxx.xxx.xxx
+        gerp-qcif-login0:
+          ansible_host: xxx.xxx.xxx.xxx
+          ansible_user: ubuntu
+          public_host: xxx.xxx.xxx.xxx
+        gerp-qcif-login1:
+          ansible_host: xxx.xxx.xxx.xxx
+          ansible_user: ubuntu
+          public_host: xxx.xxx.xxx.xxx
+        gerp-qcif-nfs:
+          ansible_host: xxx.xxx.xxx.xxx
+          ansible_host_volumes:
+            gerp-qcif_slurm_state:
+              dev: /dev/disk/by-id/virtio-cc9560ae-c116-4d45-a
+              uuid: cc9560ae-c116-4d45-a083-e7055dfcabb1
+            gerp-qcif_userdata:
+              dev: /dev/disk/by-id/virtio-24d13b43-a143-4a69-9
+              uuid: 24d13b43-a143-4a69-94cc-b359692310e9
+          ansible_user: ubuntu
+          public_host: xxx.xxx.xxx.xxx
+        gerp-qcif-node00:
+          ansible_host: xxx.xxx.xxx.xxx
+          ansible_user: ubuntu
+          public_host: xxx.xxx.xxx.xxx
+        gerp-qcif-node01:
+          ansible_host: xxx.xxx.xxx.xxx
+          ansible_user: ubuntu
+          public_host: xxx.xxx.xxx.xxx
+        gerp-qcif-node02:
+          ansible_host: xxx.xxx.xxx.xxx
+          ansible_user: ubuntu
+          public_host: xxx.xxx.xxx.xxx
+        gerp-qcif-node03:
+          ansible_host: xxx.xxx.xxx.xxx
+          ansible_user: ubuntu
+          public_host: xxx.xxx.xxx.xxx
+        gerp-qcif-node04:
+          ansible_host: xxx.xxx.xxx.xxx
+          ansible_user: ubuntu
+          public_host: xxx.xxx.xxx.xxx
+        gerp-qcif-node05:
+          ansible_host: xxx.xxx.xxx.xxx
+          ansible_user: ubuntu
+          public_host: xxx.xxx.xxx.xxx
+        gerp-qcif-node06:
+          ansible_host: xxx.xxx.xxx.xxx
+          ansible_user: ubuntu
+          public_host: xxx.xxx.xxx.xxx
+        gerp-qcif-node07:
+          ansible_host: xxx.xxx.xxx.xxx
+          ansible_user: ubuntu
+          public_host: xxx.xxx.xxx.xxx
+        gerp-qcif-node08:
+          ansible_host: xxx.xxx.xxx.xxx
+          ansible_user: ubuntu
+          public_host: xxx.xxx.xxx.xxx
+        gerp-qcif-node09:
+          ansible_host: xxx.xxx.xxx.xxx
+          ansible_user: ubuntu
+          public_host: xxx.xxx.xxx.xxx
+        gerp-qcif-node10:
+          ansible_host: xxx.xxx.xxx.xxx
+          ansible_user: ubuntu
+          public_host: xxx.xxx.xxx.xxx
+        gerp-qcif-node11:
+          ansible_host: xxx.xxx.xxx.xxx
+          ansible_user: ubuntu
+          public_host: xxx.xxx.xxx.xxx
+        gerp-qcif-sql0:
+          ansible_host: xxx.xxx.xxx.xxx
+          ansible_user: ubuntu
+          public_host: xxx.xxx.xxx.xxx
+      vars:
+        ansible_python_interpreter: /usr/bin/python3

@@ -1,0 +1,80 @@
+#Copy cryosparc setup files.
+- hosts: '*login0'
+  gather_facts: false
+  tasks:
+    - name: Copy in the cryosparc files and setup permissions
+      block:
+        - name: copying files
+          copy:
+            src: cryosparc_files
+            dest: /mnt/userdata
+          become: true
+        - name: Find files
+          find:
+            paths: /mnt/userdata/cryosparc_files
+            patterns: "install_*"
+          register: files_to_change
+        - name: Modify the file permissions
+          file:
+            path: "{{ item.path }}"
+            mode: "u+x,g+x,o+x"
+          with_items: "{{ files_to_change.files }}"
+          become: true
+
+        - name: Find files
+          find:
+            paths: /mnt/userdata/cryosparc_files
+            patterns: "start_*"
+          register: files_to_change
+        - name: Modify the file permissions
+          file:
+            path: "{{ item.path }}"
+            mode: "u+x,g+x,o+x"
+          with_items: "{{ files_to_change.files }}"
+          become: true
+
+#Install software on all nodes. zip is required for cryosparc.
+- hosts: 'LoginNodes,ComputeNodes'
+  gather_facts: false
+  tasks:
+  - package:
+      state: present
+      name:
+        - zip
+        - vim
+        - htop
+        - python3-pip
+        - python3-virtualenv
+    become: true
+
+#Install PortChecker - required for starting CryoSPARC on a new Port
+- hosts: '*login0'
+  gather_facts: false
+  tasks:
+  - name: create the install directory
+    file: dest=/mnt/userdata/portchecker state=directory owner=ubuntu
+    become: yes
+  - pip:
+      chdir: "/mnt/userdata/portchecker"
+      name:
+        - git+https://gitlab.erc.monash.edu.au/hpc-team/portchecker.git
+      state: present
+      virtualenv: "/mnt/userdata/portchecker"
+      virtualenv_python: python3
+    become_user: ubuntu
+  - file:
+      path: /mnt/userdata/portchecker/var/log
+      state: directory
+      mode: "u+w,g+w,o+w"
+
+#Copy in Strudel2 apps.json.
+- hosts: '*login0'
+  gather_facts: false
+  tasks:
+    - name: Copy in the Strudel2 apps.json file
+      block:
+        - name: copying files
+          copy:
+            src: files/apps.json
+            dest: /mnt/userdata/strudel2/apps.json
+          become: true

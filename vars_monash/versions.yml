@@ -1,0 +1,36 @@
+nhc_version: 1.4.2
+nhc_src_url: https://codeload.github.com/mej/nhc/tar.gz/refs/tags/1.4.2
+nhc_src_checksum: "sha1:766762d2c8cd81204b92d4921fb5b66616351412"
+nhc_src_dir: /opt/src/nhc-1.4.2
+nhc_dir: /opt/nhc-1.4.2
+
+slurm_version: 21.08.8
+slurm_src_url: https://download.schedmd.com/slurm/slurm-21.08.8.tar.bz2
+slurm_src_checksum: "sha1:7d37dbef37b25264a1593ef2057bc423e4a89e81"
+slurm_src_dir: /opt/src/slurm-21.08.8
+slurm_dir: /opt/slurm-21.08.8
+
+ucx_version: 1.8.0
+ucx_src_url: https://github.com/openucx/ucx/releases/download/v1.8.0/ucx-1.8.0.tar.gz
+ucx_src_checksum: "sha1:96f2fe1918127edadcf5b195b6532da1da3a74fa"
+ucx_src_dir: /opt/src/ucx-1.8.0
+ucx_dir: /opt/ucx-1.8.0
+
+munge_version: 0.5.14
+munge_src_url: https://github.com/dun/munge/archive/refs/tags/munge-0.5.14.tar.gz
+munge_src_checksum: "sha1:70f6062b696c6d4f17b1d3bdc47c3f5eca24757c"
+munge_dir: /opt/munge-0.5.14
+munge_src_dir: /opt/src/munge-munge-0.5.14
+
+
+nvidia_mig_parted_version: 0.1.3
+nvidia_mig_parted_src_url: https://github.com/NVIDIA/mig-parted/archive/refs/tags/v0.1.3.tar.gz
+nvidia_mig_parted_src_checksum: "sha1:50597b4a94348c3d52b3234bb22783fa236f1d53"
+nvidia_mig_parted_src_dir: /opt/src/mig-parted-0.1.3
+
+nvidia_mig_slurm_discovery_version: master
+nvidia_mig_slurm_discovery_src_url: https://gitlab.com/nvidia/hpc/slurm-mig-discovery.git
+nvidia_mig_slurm_discovery_src_dir: /opt/src/mig-slurm_discovery
+
+nvidia_cuda_version: cuda-11-2
+nvidia_libcudnn_version: libcudnn8-dev

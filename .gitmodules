@@ -1,0 +1,3 @@
+[submodule "HPCasCode"]
+	path = HPCasCode
+	url = git@gitlab.erc.monash.edu.au:hpc-team/HPCasCode.git

@@ -1,0 +1,58 @@
+---
+desktopNodeList:
+  - { name : 'DesktopNodes', interface : 'eth0' }
+slurmqueues:
+  - {name: batch, group: ComputeNodes, default: yes}
+
+
+slurmsharedstatedir: /slurm_state
+slurm_version: 21.08.8
+munge_version: 0.5.14
+nhc_version: 1.4.2
+ucx_version: 1.8.0
+clustername: "gerp-monash"
+
+
+nhc_src_url: https://codeload.github.com/mej/nhc/tar.gz/refs/tags/1.4.2
+nhc_src_checksum: sha1:766762d2c8cd81204b92d4921fb5b66616351412
+nhc_src_dir: /opt/src/nhc-1.4.2
+nhc_dir: /opt/nhc-1.4.2
+slurm_src_url: https://download.schedmd.com/slurm/slurm-21.08.8.tar.bz2
+slurm_src_checksum: sha1:7d37dbef37b25264a1593ef2057bc423e4a89e81
+slurm_src_dir: /opt/src/slurm-21.08.8
+slurm_dir: /opt/slurm-21.08.8
+ucx_src_url: https://github.com/openucx/ucx/releases/download/v1.8.0/ucx-1.8.0.tar.gz
+ucx_src_checksum: sha1:96f2fe1918127edadcf5b195b6532da1da3a74fa
+ucx_src_dir: /opt/src/ucx-1.8.0
+ucx_dir: /opt/ucx-1.8.0
+munge_src_url: https://github.com/dun/munge/archive/refs/tags/munge-0.5.14.tar.gz
+munge_src_checksum: sha1:70f6062b696c6d4f17b1d3bdc47c3f5eca24757c
+munge_src_dir: /opt/src/munge-munge-0.5.14
+munge_dir: /opt/munge-0.5.14
+
+nhc_config_file: nhc.conf
+nhc_log_level: 0
+nhc_emails: nobody@nowhere.nowhere
+nhc_email_subject: "Node Health Check"
+mysql_host: "gerp-monash-sql0"
+slurmctrl:  "gerp-monash-login0"
+slurmctrlbackup: "gerp-monash-login1"
+slurmdbd: "gerp-monash-login0"
+slurmdbdpiddir: "/opt/slurm/var/run"
+slurmdbdbackup: "gerp-monash-login1"
+slurm_lua: true
+slurmlogin: "gerp-monash-login0"
+slurmlogdir: "/var/log"
+slurmctlddebug: {level: 5, log: '/mnt/slurm-logs/slurmctld.log'}
+slurmddebug: {level: 5, log: '/var/log/slurmd.log'}
+slurmschedlog: {level: 5, log: '/mnt/slurm-logs/slurmsched.log'}
+slurmdbdlog: {level: 5, log: '/mnt/slurm-logs/slurmdbd.log'}
+slurmfairshare: {def: false, val: 10000}
+slurmdatadir: "/opt/slurm/var/spool"
+slurmstatedir: "/opt/slurm/var/state"
+slurmpiddir: "/opt/slurm/var/run"
+slurmselecttype: "select/cons_tres"
+slurmfastschedule: "1"
+slurmschedulertype: "sched/backfill"
+restartServerList:
+  - slurm

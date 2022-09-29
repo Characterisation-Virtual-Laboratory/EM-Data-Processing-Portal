@@ -1,0 +1,5 @@
+{
+    "DATA_TYPE": "path_restrictions#1.0.0",
+    "read_write": ["/mnt/userdata/$USER", "/home/$USER"],
+    "none": ["/"]
+}

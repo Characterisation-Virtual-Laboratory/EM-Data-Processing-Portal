@@ -1,0 +1,80 @@
+domain: gerp-qcif.org.au
+volumes:
+
+  - host: gerp-qcif-nfs
+    dev: /dev/disk/by-id/virtio-cc9560ae-c116-4d45-a
+    mnt: /mnt/slurm_state
+
+  - host: gerp-qcif-nfs
+    dev: /dev/disk/by-id/virtio-24d13b43-a143-4a69-9
+    mnt: /mnt/userdata
+
+nfsexports:
+  - host: gerp-qcif-nfs
+    exportList:
+      - src: /mnt/slurm_state
+      - src: /mnt/userdata
+
+      - src: /home
+      - src: /nfs/opt
+
+nfsmounts:
+  - group: LoginNodes
+    nfsMounts:
+
+    - name: /mnt/slurm_state
+      ipv4: gerp-qcif-nfs
+      src: /mnt/slurm_state
+      fstype: nfs4
+      opts: "defaults,rw"
+
+    - name: /mnt/userdata
+      ipv4: gerp-qcif-nfs
+      src: /mnt/userdata
+      fstype: nfs4
+      opts: "defaults,rw"
+
+
+    - name: /home
+      ipv4: gerp-qcif-nfs
+      src:  /home
+      fstype: nfs4
+      opts: "defaults,rw"
+
+    - name: /nfs/opt
+      ipv4: gerp-qcif-nfs
+      src:  /nfs/opt
+      fstype: nfs4
+      opts: "defaults,rw"
+
+  - group: ComputeNodes
+    nfsMounts:
+
+    - name: /mnt/slurm_state
+      ipv4: gerp-qcif-nfs
+      src: /mnt/slurm_state
+      fstype: nfs4
+      opts: "defaults,rw"
+    - name: /mnt/userdata
+      ipv4: gerp-qcif-nfs
+      src: /mnt/userdata
+      fstype: nfs4
+      opts: "defaults,rw"
+    - name: /home
+      ipv4: gerp-qcif-nfs
+      src: /home
+      fstype: nfs4
+      opts: "defaults,rw"
+  - group: ManagementNodes
+    nfsMounts:
+
+    - name: /mnt/slurm_state
+      ipv4: gerp-qcif-nfs
+      src: /mnt/slurm_state
+      fstype: nfs4
+      opts: "defaults,rw"
+    - name: /mnt/userdata
+      ipv4: gerp-qcif-nfs
+      src: /mnt/userdata
+      fstype: nfs4
+      opts: "defaults,rw"

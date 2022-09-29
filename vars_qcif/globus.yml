@@ -1,0 +1,40 @@
+The values used to deploy Globus manually.
+Refer to the file 'Globus install GERP QCIF.txt'
+
+#globus-auth
+globus_clientId: ""
+globus_clientSecret:
+
+#globus-connect-server
+endpoint_DisplayName: "EM Data Processing Portal at QCIF"
+endpoint_Organization: "Queensland Cyber Infrastructure Foundation"
+#Owner: same ID used to obtain the clienId and clientSecret from https://developers.globus.org
+endpoint_Owner: ""
+endpoint_DeploymentKeyPath: "/home/ubuntu/deployment-key.json"
+endpoint_ContactEmail: ""
+
+globus_subscription: True
+
+storage_gateway_DisplayName: "EM Data Processing Portal at QCIF"
+storage_gateway_AuthDomains:
+  - "globusid.org"
+storage_gateway_TimeOut: "$((60 * 24 * 5))"
+storage_gateway_DestinationPathRestrictions: "/home/ubuntu/path-restrictions.json"
+storage_gateway_RestrictPaths: "file:/home/ubuntu/path-restrictions.json"
+storage_gateway_HighAssurance: false
+storage_gateway_MFA: false
+storage_gateway_IdentityMappings: []
+
+collection_BasePath: "/"
+collection_DisplayName: "EM Data Processing Portal at QCIF"
+collection_Organization: "Queensland Cyber Infrastructure Foundation"
+collection_ContactEmail: ""
+collection_InfoLink: "https://www.imagingtools.org.au/"
+collection_Description: "Access to your storage"
+collection_Keywords: "home,userdata"
+collection_DestinationPathRestrictions: "/home/ubuntu/sharing-restrictions.json"
+collection_SharingRestrictPaths: "file:/home/ubuntu/sharing-restrictions.json"
+collection_SharingGroupAllow: "globusallow"
+collection_SharingGroupDeny: "globusdeny"
+collection_UserMessage: "Welcome to EM Data Processing Portal"
+collection_UserMessageLink: "https://www.imagingtools.org.au/"

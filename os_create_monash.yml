@@ -1,0 +1,280 @@
+---
+- name: load vars
+  hosts: localhost
+  tasks:
+  - include_vars: os_vars.yml
+  tags: allways
+
+- name: create security groups
+  hosts: localhost
+  tasks:
+  - openstack.cloud.security_group:
+      state: present
+      name: "{{ clustername }}-secgroup"
+    register: secgroup
+  - name: debug secgroup
+    debug:
+      var: secgroup
+
+  - openstack.cloud.security_group_rule:
+      security_group: "{{ clustername}}-secgroup"
+      remote_group: "{{ clustername}}-secgroup"
+      protocol: "tcp"
+  - openstack.cloud.security_group_rule:
+      security_group: "{{ clustername}}-secgroup"
+      remote_group: "{{ clustername}}-secgroup"
+      protocol: "icmp"
+  - openstack.cloud.security_group_rule:
+      security_group: "{{ clustername}}-secgroup"
+      remote_group: "{{ clustername}}-secgroup"
+      protocol: "tcp"
+      port_range_min: 22
+      port_range_max: 22
+
+  - openstack.cloud.security_group:
+      state: present
+      name: "{{ clustername }}-bastion-secgroup"
+    register: secgroup2
+  - name: debug secgroup2
+    debug:
+      var: secgroup2
+
+  - openstack.cloud.security_group_rule:
+      security_group: "{{ clustername }}-bastion-secgroup"
+      remote_group: "{{ clustername }}-bastion-secgroup"
+      protocol: "tcp"
+  - openstack.cloud.security_group_rule:
+      security_group: "{{ clustername }}-bastion-secgroup"
+      remote_group: "{{ clustername }}-bastion-secgroup"
+      protocol: "icmp"
+  - openstack.cloud.security_group_rule:
+      security_group: "{{ clustername }}-bastion-secgroup"
+      remote_ip_prefix: "0.0.0.0/0"
+      protocol: "tcp"
+      port_range_min: 22
+      port_range_max: 22
+
+  - openstack.cloud.security_group:
+      state: present
+      name: "{{ clustername }}-globus-secgroup"
+    register: secgroup3
+  - name: debug secgroup3
+    debug:
+      var: secgroup3
+
+  - openstack.cloud.security_group_rule:
+      security_group: "{{ clustername }}-globus-secgroup"
+      ethertype: IPv4
+      direction: ingress
+      protocol: tcp
+      port_range_min: 80
+      port_range_max: 80
+      remote_ip_prefix: 0.0.0.0/0
+  - openstack.cloud.security_group_rule:
+      security_group: "{{ clustername }}-globus-secgroup"
+      ethertype: IPv4
+      direction: ingress
+      protocol: tcp
+      port_range_min: 443
+      port_range_max: 443
+      remote_ip_prefix: 0.0.0.0/0
+  - openstack.cloud.security_group_rule:
+      security_group: "{{ clustername }}-globus-secgroup"
+      ethertype: IPv4
+      direction: ingress
+      protocol: tcp
+      port_range_min: 50000
+      port_range_max: 51000
+      remote_ip_prefix: 0.0.0.0/0
+
+- name: create bastion node
+  hosts: localhost
+  tasks:
+  - name: bastionnodes
+    openstack.cloud.server:
+      state: present
+      timeout: 600
+      availability_zone: "{{ availability_zone }}"
+      image: "{{ image }}"
+      flavor: "{{ item.flavor }}"
+      auto_ip: false
+      security_groups:
+        - default
+        - "{{ clustername}}-secgroup"
+        - "{{ clustername}}-bastion-secgroup"
+      meta:
+         clustername: "{{ clustername }}"
+         ansible_user: ubuntu
+         ansible_host_groups: '[ "BastionNodes" ]'
+      nics:
+        - net-name: "Classic Provider"
+      userdata: "{{ os_userdata }}"
+      name: "{{ item.vmname }}"
+    loop:
+      - { vmname: "{{ clustername}}-bastion0", flavor: t3.xsmall }
+
+- name: create login nodes
+  hosts: localhost
+  tasks:
+  - name: Loginnodes
+    openstack.cloud.server:
+      state: present
+      timeout: 600
+      availability_zone: "{{ availability_zone }}"
+      image: "{{ image }}"
+      flavor: "{{ item.flavor }}"
+      auto_ip: false
+      security_groups:
+        - default
+        - "{{ clustername}}-secgroup"
+        - "{{ clustername}}-bastion-secgroup"
+      meta:
+         clustername: "{{ clustername }}"
+         ansible_user: ubuntu
+         ansible_host_groups: '[ "LoginNodes", "ManagementNodes", "LdapNodes" ]'
+      nics:
+        - net-name: "Classic Provider"
+      userdata: "{{ os_userdata }}"
+      name: "{{ item.vmname }}"
+    loop:
+      - { vmname: "{{ clustername }}-login0", flavor: m3.large }
+      - { vmname: "{{ clustername }}-login1", flavor: m3.large }
+
+- name: create globus node
+  hosts: localhost
+  tasks:
+  - name: Loginnodes
+    openstack.cloud.server:
+      state: present
+      timeout: 600
+      availability_zone: "{{ availability_zone }}"
+      image: "{{ image }}"
+      flavor: "{{ item.flavor }}"
+      auto_ip: false
+      security_groups:
+        - default
+        - "{{ clustername}}-secgroup"
+        - "{{ clustername }}-globus-secgroup"
+      meta:
+         clustername: "{{ clustername }}"
+         ansible_user: ubuntu
+         ansible_host_groups: '[ "LoginNodes"]'
+      nics:
+        - net-name: "Classic Provider"
+      userdata: "{{ os_userdata }}"
+      name: "{{ item.vmname }}"
+    loop:
+      - { vmname: "{{ clustername }}-globus", flavor: m3.large }
+
+- name: create volumes for slurmstate and homedir
+  hosts: localhost
+  tasks:
+  - name: slurm volume
+    openstack.cloud.volume:
+      state: present
+      availability_zone: "{{ availability_zone }}"
+      size: 2
+      display_name: "{{clustername}}_slurm_state"
+    register: slurm_state_volume
+
+  - name: slurm volume
+    openstack.cloud.volume:
+      state: present
+      availability_zone: "{{ availability_zone }}"
+      size: 49990
+      display_name: "{{ clustername }}_userdata"
+    register: user_volume
+  - name: debug slurm_state
+    debug:
+      var: slurm_state_volume
+
+- name: create sql node
+  hosts: localhost
+  tasks:
+  - name: SQLnodes
+    openstack.cloud.server:
+      state: present
+      timeout: 600
+      availability_zone: "{{ availability_zone }}"
+      image: "{{ image }}"
+      flavor: "{{ item.flavor }}"
+      auto_ip: false
+      security_groups:
+        - default
+        - "{{ clustername}}-secgroup"
+      meta:
+         clustername: "{{ clustername }}"
+         ansible_user: ubuntu
+         ansible_host_groups: '[ "SQLNodes" ]'
+      nics:
+        - net-name: "Classic Provider"
+      userdata: "{{ os_userdata }}"
+      name: "{{ item.vmname }}"
+    loop:
+      - { vmname: "{{ clustername }}-sql0", flavor: m3.medium }
+
+- name: create nfs node
+  hosts: localhost
+  tasks:
+  - name: NFSnodes
+    openstack.cloud.server:
+      state: present
+      timeout: 600
+      availability_zone: "{{ availability_zone }}"
+      image: "{{ image }}"
+      flavor: "{{ item.flavor }}"
+      auto_ip: false
+      security_groups:
+        - default
+        - "{{ clustername}}-secgroup"
+      meta:
+         clustername: "{{ clustername }}"
+         ansible_user: ubuntu
+         ansible_host_groups: '[ "NFSNodes" ]'
+      nics:
+        - net-name: "Classic Provider"
+      userdata: "{{ os_userdata }}"
+      name: "{{ item.vmname }}"
+      volumes: [ "{{ slurm_state_volume.volume.id }}", "{{ user_volume.volume.id }}"]
+    loop:
+      - { vmname: "{{ clustername }}-nfs", flavor: m3.xlarge }
+
+  - name: create compute nodes
+    openstack.cloud.server:
+      state: present
+      timeout: 600
+      availability_zone: "{{ availability_zone }}"
+      image: "{{ image }}"
+      flavor: "{{ item.flavor }}"
+      auto_ip: false
+      security_groups:
+        - default
+        - "{{ clustername}}-secgroup"
+      meta:
+         clustername: "{{ clustername }}"
+         ansible_user: ubuntu
+         ansible_host_groups: '[ "ComputeNodes" ]'
+      nics:
+        - net-name: "Classic Provider"
+      userdata: "{{ os_userdata }}"
+      name: "{{ item.vmname }}"
+    loop:
+      - { vmname: "{{ clustername }}-node00", flavor: mon.c52r460.2gpu-A100.numa }
+      - { vmname: "{{ clustername }}-node01", flavor: mon.c52r460.2gpu-A100.numa }
+      - { vmname: "{{ clustername }}-node02", flavor: mon.c52r460.2gpu-A100.numa }
+      - { vmname: "{{ clustername }}-node03", flavor: mon.c52r460.2gpu-A100.numa }
+      #- { vmname: "{{ clustername }}-node04", flavor: mon.c52r920.2gpu-A100.numa }
+      #- { vmname: "{{ clustername }}-node05", flavor: mon.c52r920.2gpu-A100.numa }
+      # - { vmname: "{{ clustername }}-node06", flavor: mon.c26r460.gpu-A100.numa }
+      # - { vmname: "{{ clustername }}-node07", flavor: mon.c26r460.gpu-A100.numa }
+      # - { vmname: "{{ clustername }}-node08", flavor: mon.c26r460.gpu-A100.numa }
+      # - { vmname: "{{ clustername }}-node09", flavor: mon.c26r460.gpu-A100.numa }
+      # - { vmname: "{{ clustername }}-node10", flavor: mon.c26r460.gpu-A100.numa }
+      # - { vmname: "{{ clustername }}-node11", flavor: mon.c26r460.gpu-A100.numa }
+      # - { vmname: "{{ clustername }}-node00", flavor: mon.c104r920.4gpu-A100.numa }
+      # - { vmname: "{{ clustername }}-node01", flavor: mon.c104r920.4gpu-A100.numa }
+      # - { vmname: "{{ clustername }}-node02", flavor: mon.c104r920.4gpu-A100.numa }
+
+#Note using 'mon.c26r460.gpu-A100.numa' as 4 VMs. Unable to have the 4 gpus in one VM until Dell removes the NVLink. (Shahaan)
+# Contact him when ready for full production, then use the flavor mon.c104r1840.4gpu-A100.numa
+#- { vmname: "{{ clustername }}-node03", flavor: mon.c104r1840.4gpu-A100.numa }

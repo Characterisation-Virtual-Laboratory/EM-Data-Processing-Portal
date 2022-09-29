@@ -1,0 +1,99 @@
+Globus Install GERP MONASH.
+
+The Globus installation process has changed, negatively impacting the use of the
+ansible scripts: https://github.com/Characterisation-Virtual-Laboratory/Globus-Endpoint-deployment
+
+The client secret can be found in vars/globus.yml
+It has been encrypted using the same Ansible vault password as for the repository.
+
+The following details the manual installation of Globus on gerp-monash-globus.
+
+Ensure the required ports are open, otherwise globus will not setup correctly.
+https://docs.globus.org/globus-connect-server/v5.4/#open-tcp-ports_section
+
+During the installation, Globus will ask you to login. The command is:
+  globus-connect-server login localhost
+
+***** Installation ******
+
+curl -LOs https://downloads.globus.org/globus-connect-server/stable/installers/repo/deb/globus-repo_latest_all.deb
+sudo dpkg -i globus-repo_latest_all.deb
+sudo apt-key add /usr/share/globus-repo/RPM-GPG-KEY-Globus
+sudo apt update
+sudo apt install globus-connect-server54
+
+globus-connect-server endpoint set-subscription-id DEFAULT
+
+***** Endpoint setup ******
+
+  globus-connect-server endpoint  setup "EM Data Processing Portal at MeRC" /
+  --organization "Monash eResearch Centre" /
+  --client-id "" /
+  --owner "" /
+  --contact-email "help@massive.org.au" /
+  --agree-to-letsencrypt-tos /
+  --deployment-key /home/ubuntu/deployment-key.json /
+  --secret ""
+
+**** Node setup *****
+
+  sudo globus-connect-server node setup /
+  --client-id "" /
+  --deployment-key /home/ubuntu/deployment-key.json /
+  --ip-address xxx.xxx.xxx.xxx /
+
+
+***Storage gateway***
+
+cp files/path-restrictions.json /home/ubuntu/path-restrictions.json
+cp files/identity-mapping.json /home/ubuntu/identity-mapping.json
+cp files/identity-mapping.py /opt/globus/identity-mapping.py
+sudo chown gcsweb:gcsweb /opt/globus/identity-mapping.py
+sudo chmod u+x,g+x /opt/globus/identity-mapping.py
+
+#This file maps AAF email addresses to local accounts
+cp files/gerp_users_usermap.yml /opt/globus/gerp_users_usermap.yml
+
+  globus-connect-server storage-gateway create posix "EM Data Processing Portal at MeRC" /
+  --domain monash.edu.au --domain globusid.org /
+  --authentication-timeout-mins "$((60 * 24 * 5))" /
+  --identity-mapping file:/home/ubuntu/identity-mapping.json /
+  --restrict-paths "file:/home/ubuntu/path-restrictions.json" /
+  --user-deny root
+
+***Add storage gateway to Globus subscription***
+
+  globus-connect-server endpoint set-subscription-id DEFAULT
+
+***Collection***
+
+cp files/sharing-restrictions.json /home/ubuntu/sharing-restrictions.json
+
+  globus-connect-server collection create "GATEWAY-ID"
+  "/" "EM Data Processing Portal at MeRC"
+  --organization  "Monash eResearch Centre"
+  --contact-email  "help@massive.org.au"
+  --info-link "https://www.imagingtools.org.au/"
+  --description "Access to your storage"
+  --keywords "home, userdata"
+  --allow-guest-collections
+  --sharing-restrict-paths "file:/home/ubuntu/sharing-restrictions.json" \
+  --posix-sharing-group-allow "globusallow" \
+  --posix-sharing-group-deny "globusdeny" \
+  --user-message "Welcome to the EM Data Processing Portal"
+  --user-message-link "https://www.imagingtools.org.au/"
+
+Note: when the documentation is on imagingtools.org.au, update the collection details.
+
+# Storage Gateway Update for all domains:
+
+globus-connect-server storage-gateway update posix \
+--domain anu.edu.au --domain curtin.edu.au --domain deakin.edu.au \
+--domain flinders.edu.au --domain griffith.edu.au --domain mq.edu.au \
+--domain monash.edu.au --domain murdoch.edu.au --domain qut.edu.au \
+--domain swin.edu.au --domain unimelb.edu.au --domain unsw.edu.au \
+--domain uq.edu.au --domain sydney.edu.au --domain uwa.edu.au \
+--domain wehi.edu.au --domain adelaide.edu.au --domain newcastle.edu.au \
+--domain une.edu.au --domain unisa.edu.au --domain utas.edu.au \
+--domain vu.edu.au --domain globusid.org \
+"GATEWAY_ID"

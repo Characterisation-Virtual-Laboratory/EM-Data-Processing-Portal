@@ -1,0 +1,177 @@
+---
+
+- name: load vars
+  hosts: localhost
+  tasks:
+  - include_vars: os_vars.yml
+  tags: allways
+
+- name: create bastion node
+  hosts: localhost
+  tasks:
+  - name: bastionnodes
+    openstack.cloud.server:
+      state: absent
+      timeout: 600
+      availability_zone: "{{ availability_zone }}"
+      image: "{{ image }}"
+      flavor: "{{ item.flavor }}"
+      auto_ip: false
+      security_groups:
+        - default
+      meta:
+         clustername: "{{ clustername }}"
+         ansible_user: ubuntu
+         ansible_host_groups: '[ "BastionNodes" ]'
+      name: "{{ item.vmname }}"
+    loop:
+      - { vmname: "{{ clustername}}-bastion0", flavor: t3.xsmall }
+
+- name: create login nodes
+  hosts: localhost
+  tasks:
+  - name: Loginnodes
+    openstack.cloud.server:
+      state: absent
+      timeout: 600
+      availability_zone: "{{ availability_zone }}"
+      image: "{{ image }}"
+      flavor: "{{ item.flavor }}"
+      auto_ip: false
+      security_groups:
+        - default
+      meta:
+         clustername: "{{ clustername }}"
+         ansible_user: ubuntu
+         ansible_host_groups: '[ "LoginNodes", "ManagementNodes", "LdapNodes" ]'
+      name: "{{ item.vmname }}"
+    loop:
+      - { vmname: "{{ clustername }}-login0", flavor: m3.large }
+      - { vmname: "{{ clustername }}-login1", flavor: m3.large }
+
+- name: create globus node
+  hosts: localhost
+  tasks:
+  - name: Loginnodes
+    openstack.cloud.server:
+      state: absent
+      timeout: 600
+      availability_zone: "{{ availability_zone }}"
+      image: "{{ image }}"
+      flavor: "{{ item.flavor }}"
+      auto_ip: false
+      security_groups:
+        - default
+      meta:
+         clustername: "{{ clustername }}"
+         ansible_user: ubuntu
+         ansible_host_groups: '[ "LoginNodes"]'
+      name: "{{ item.vmname }}"
+    loop:
+      - { vmname: "{{ clustername }}-globus", flavor: m3.large }
+
+- name: create sql node
+  hosts: localhost
+  tasks:
+  - name: SQLnodes
+    openstack.cloud.server:
+      state: absent
+      timeout: 600
+      availability_zone: "{{ availability_zone }}"
+      image: "{{ image }}"
+      flavor: "{{ item.flavor }}"
+      auto_ip: false
+      security_groups:
+        - default
+      meta:
+         clustername: "{{ clustername }}"
+         ansible_user: ubuntu
+         ansible_host_groups: '[ "SQLNodes" ]'
+      name: "{{ item.vmname }}"
+    loop:
+      - { vmname: "{{ clustername }}-sql0", flavor: m3.medium }
+
+- name: create nfs node
+  hosts: localhost
+  tasks:
+  - name: NFSnodes
+    openstack.cloud.server:
+      state: absent
+      timeout: 600
+      availability_zone: "{{ availability_zone }}"
+      image: "{{ image }}"
+      flavor: "{{ item.flavor }}"
+      auto_ip: false
+      security_groups:
+        - default
+      meta:
+         clustername: "{{ clustername }}"
+         ansible_user: ubuntu
+         ansible_host_groups: '[ "NFSNodes" ]'
+      name: "{{ item.vmname }}"
+    loop:
+      - { vmname: "{{ clustername }}-sql0", flavor: m3.xlarge }
+
+- name: create volumes for slurmstate and homedir
+  hosts: localhost
+  tasks:
+  - name: slurm volume
+    openstack.cloud.volume:
+      state: absent
+      availability_zone: "{{ availability_zone }}"
+      size: 2
+      display_name: "{{clustername}}_slurm_state"
+
+  - name: slurm volume
+    openstack.cloud.volume:
+      state: absent
+      availability_zone: "{{ availability_zone }}"
+      size: 49900
+      display_name: "{{clustername}}_userdata"
+    register: user_volume
+
+  - name: create compute nodes
+    openstack.cloud.server:
+
+      state: absent
+      timeout: 600
+      availability_zone: "{{ availability_zone }}"
+      image: "{{ image }}"
+      flavor: "{{ item.flavor }}"
+      auto_ip: false
+      security_groups:
+        - default
+      meta:
+         clustername: "{{ clustername }}"
+         ansible_user: ubuntu
+         ansible_host_groups: '[ "ComputeNodes" ]'
+      name: "{{ item.vmname }}"
+    loop:
+      - { vmname: "{{ clustername }}-node00", flavor: mon.c26r460.gpu-A100.numa }
+      - { vmname: "{{ clustername }}-node01", flavor: mon.c26r460.gpu-A100.numa }
+      - { vmname: "{{ clustername }}-node02", flavor: mon.c26r460.gpu-A100.numa }
+      - { vmname: "{{ clustername }}-node03", flavor: mon.c26r460.gpu-A100.numa }
+      - { vmname: "{{ clustername }}-node04", flavor: mon.c26r460.gpu-A100.numa }
+      - { vmname: "{{ clustername }}-node05", flavor: mon.c26r460.gpu-A100.numa }
+      - { vmname: "{{ clustername }}-node06", flavor: mon.c26r460.gpu-A100.numa }
+      - { vmname: "{{ clustername }}-node07", flavor: mon.c26r460.gpu-A100.numa }
+      - { vmname: "{{ clustername }}-node08", flavor: mon.c26r460.gpu-A100.numa }
+      - { vmname: "{{ clustername }}-node09", flavor: mon.c26r460.gpu-A100.numa }
+      - { vmname: "{{ clustername }}-node10", flavor: mon.c26r460.gpu-A100.numa }
+      - { vmname: "{{ clustername }}-node11", flavor: mon.c26r460.gpu-A100.numa }
+
+- name: create network
+  hosts: localhost
+  tasks:
+  - name: network
+    openstack.cloud.security_group:
+      state: absent
+      name: "{{ clustername }}-secgroup"
+
+    openstack.cloud.security_group:
+      state: absent
+      name: "{{ clustername }}-bastion-secgroup"
+
+    openstack.cloud.security_group:
+      state: absent
+      name: "{{ clustername }}-globus-secgroup"

@@ -1,0 +1,13 @@
+---
+# variabls for openstack
+clustername: "gerp-monash"
+image: 356ff1ed-5960-4ac2-96a1-0c0198e6a999
+availability_zone: monash-02
+ext_network: monash
+# The bit that says #cloud-config is not a COMMENT, its part of a multiline string sent to openstack
+os_userdata: |
+  #cloud-config
+  users:
+    - default
+    - name: ubuntu
+      ssh_authorized_keys: 'cert-authority ssh-ed25519'

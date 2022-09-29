@@ -1,0 +1,39 @@
+#!/usr/bin/python3
+import json
+import os
+
+def merge_apps(l1,l2):
+    d = {}
+    done = []
+    apps = []
+    for a in l1:
+        d[a['name']] = a
+    for a in l2:
+        d[a['name']] = a
+    for a in l1:
+        done.append(a['name'])
+        apps.append(d[a['name']])
+    for a in l2:
+        if not a['name'] in done:
+            apps.append(d[a['name']])
+    return apps
+
+currpath = os.path.dirname(os.path.abspath(__file__))
+DEFAULTFILE=os.path.join(currpath,'apps.json')
+with open(DEFAULTFILE,'r') as f:
+    jsonstr = f.read()
+    apps = json.loads(jsonstr)
+
+try:
+    with open(os.path.expanduser('~/.strudel2/apps.json')) as f:
+        jsonstr = f.read()
+        userapps = json.loads(jsonstr)
+except:
+    userapps = []
+if userapps is None:
+    userapps = []
+
+allapps = merge_apps(apps,userapps)
+#if userapps is not None:
+#    apps.extend(userapps)
+print(json.dumps(allapps))

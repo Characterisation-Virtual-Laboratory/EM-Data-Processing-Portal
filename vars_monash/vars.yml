@@ -1,0 +1,6 @@
+---
+sudo_group: systems
+nagios_home: "/var/lib/nagios"
+nvidia_version: "450.51.06"
+syslog_server: "gerp-monash-sql0"
+gitlab_runner_name: "gerp_merc"

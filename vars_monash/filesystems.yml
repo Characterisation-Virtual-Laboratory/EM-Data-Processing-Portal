@@ -1,0 +1,80 @@
+domain: gerp-monash.org.au
+volumes:
+
+  - host: gerp-monash-nfs
+    dev: /dev/disk/by-id/virtio-8b24cf25-7a16-477e-b
+    mnt: /mnt/slurm_state
+
+  - host: gerp-monash-nfs
+    dev: /dev/disk/by-id/virtio-95e22b82-a70c-4ca2-8
+    mnt: /mnt/userdata
+
+nfsexports:
+  - host: gerp-monash-nfs
+    exportList:
+      - src: /mnt/slurm_state
+      - src: /mnt/userdata
+
+      - src: /home
+      - src: /nfs/opt
+
+nfsmounts:
+  - group: LoginNodes
+    nfsMounts:
+
+    - name: /mnt/slurm_state
+      ipv4: gerp-monash-nfs
+      src: /mnt/slurm_state
+      fstype: nfs4
+      opts: "defaults,rw"
+
+    - name: /mnt/userdata
+      ipv4: gerp-monash-nfs
+      src: /mnt/userdata
+      fstype: nfs4
+      opts: "defaults,rw"
+
+
+    - name: /home
+      ipv4: gerp-monash-nfs
+      src:  /home
+      fstype: nfs4
+      opts: "defaults,rw"
+
+    - name: /nfs/opt
+      ipv4: gerp-monash-nfs
+      src:  /nfs/opt
+      fstype: nfs4
+      opts: "defaults,rw"
+
+  - group: ComputeNodes
+    nfsMounts:
+
+    - name: /mnt/slurm_state
+      ipv4: gerp-monash-nfs
+      src: /mnt/slurm_state
+      fstype: nfs4
+      opts: "defaults,rw"
+    - name: /mnt/userdata
+      ipv4: gerp-monash-nfs
+      src: /mnt/userdata
+      fstype: nfs4
+      opts: "defaults,rw"
+    - name: /home
+      ipv4: gerp-monash-nfs
+      src: /home
+      fstype: nfs4
+      opts: "defaults,rw"
+  - group: ManagementNodes
+    nfsMounts:
+
+    - name: /mnt/slurm_state
+      ipv4: gerp-monash-nfs
+      src: /mnt/slurm_state
+      fstype: nfs4
+      opts: "defaults,rw"
+    - name: /mnt/userdata
+      ipv4: gerp-monash-nfs
+      src: /mnt/userdata
+      fstype: nfs4
+      opts: "defaults,rw"

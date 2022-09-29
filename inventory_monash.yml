@@ -1,0 +1,71 @@
+all:
+  children:
+    BastionNodes:
+      hosts:
+        gerp-monash-bastion0: {}
+    ComputeNodes:
+      hosts:
+        gerp-monash-node00: {}
+        gerp-monash-node01: {}
+        gerp-monash-node02: {}
+        gerp-monash-node03: {}
+    LdapNodes:
+      hosts:
+        gerp-monash-login0: {}
+        gerp-monash-login1: {}
+    LoginNodes:
+      hosts:
+        gerp-monash-globus: {}
+        gerp-monash-login0: {}
+        gerp-monash-login1: {}
+    ManagementNodes:
+      hosts:
+        gerp-monash-login0: {}
+        gerp-monash-login1: {}
+    NFSNodes:
+      hosts:
+        gerp-monash-nfs: {}
+    SQLNodes:
+      hosts:
+        gerp-monash-sql0: {}
+    hostvars:
+      hosts:
+        gerp-monash-bastion0:
+          ansible_host: xxx.xxx.xxx.xxx
+          ansible_user: ubuntu
+        gerp-monash-globus:
+          ansible_host: xxx.xxx.xxx.xxx
+          ansible_user: ubuntu
+        gerp-monash-login0:
+          ansible_host: xxx.xxx.xxx.xxx
+          ansible_user: ubuntu
+        gerp-monash-login1:
+          ansible_host: xxx.xxx.xxx.xxx
+          ansible_user: ubuntu
+        gerp-monash-nfs:
+          ansible_host: xxx.xxx.xxx.xxx
+          ansible_host_volumes:
+            gerp-monash_slurm_state:
+              dev: /dev/disk/by-id/virtio-8b24cf25-7a16-477e-b
+              uuid: 8b24cf25-7a16-477e-b07e-1c313542f288
+            gerp-monash_userdata:
+              dev: /dev/disk/by-id/virtio-95e22b82-a70c-4ca2-8
+              uuid: 95e22b82-a70c-4ca2-8915-56914fb995b1
+          ansible_user: ubuntu
+        gerp-monash-node00:
+          ansible_host: xxx.xxx.xxx.xxx
+          ansible_user: ubuntu
+        gerp-monash-node01:
+          ansible_host: xxx.xxx.xxx.xxx
+          ansible_user: ubuntu
+        gerp-monash-node02:
+          ansible_host: xxx.xxx.xxx.xxx
+          ansible_user: ubuntu
+        gerp-monash-node03:
+          ansible_host: xxx.xxx.xxx.xxx
+          ansible_user: ubuntu
+        gerp-monash-sql0:
+          ansible_host: xxx.xxx.xxx.xxx
+          ansible_user: ubuntu
+      vars:
+        ansible_python_interpreter: /usr/bin/python3

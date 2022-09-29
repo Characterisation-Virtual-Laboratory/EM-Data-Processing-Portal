@@ -1,0 +1,97 @@
+- hosts: gerp-*-nfs
+  vars:
+    gitlab_runner_tags: "provision_cluster"
+    gitlab_url: "https://gitlab.erc.monash.edu.au/"
+  vars_files:
+  - vars/passwords.yml
+  - vars/vars.yml
+
+  tasks:
+    # We need packages more recent than ubuntu provides otherwise job logs may not appear.
+    - name: configure official latest runner repo
+      shell: curl -L "https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh" | sudo bash
+      become: true
+    - name: install gitlab runner
+      apt:
+        pkg:
+        - gitlab-runner
+        - gitlab-cli
+        state: latest
+        update_cache: true
+      become: true
+    # This should be preformed by the debian package but apparently isn't
+    - name: make runtime dir
+      file:
+        path: /var/lib/gitlab-runner
+        state: directory
+        owner: gitlab-runner
+        group: gitlab-runner
+      become: true
+
+    - name: ensure destination files are owned by gitlab-runner
+      file:
+        path: /mnt/userdata/provisioning/config
+        owner: gitlab-runner
+        group: gitlab-runner
+        state: directory
+      become: true
+
+    - name: check runner
+      shell:
+        cmd: "gitlab-runner list 2>&1 | grep {{ gitlab_runner_name }}"
+      register: check_runner
+      failed_when: check_runner.rc == 2
+      changed_when: false
+      become: true
+
+    - name: debug
+      debug:
+        var: check_runner
+
+    - name: configure gitlab runner
+      shell:
+        cmd: gitlab-runner register --non-interactive --tag-list {{ gitlab_runner_tags }} --name {{ gitlab_runner_name }} --executor shell --url {{ gitlab_url }} -r  {{ allocations_gitlab_token }}
+      become: true
+      when: check_runner.rc == 1
+
+    - name: start runner
+      service:
+        name: gitlab-runner
+        state: started
+        enabled: true
+      become: true
+
+    - name: install wrapper script
+      template:
+        dest: /mnt/userdata/provisioning
+        src: provision.sh
+        owner: root
+        group: root
+        mode: 'u=rwx,g=rx,o=rx'
+      become: true
+
+- hosts: '*login0'
+  tasks:
+  - name: Checkout a github repo and use refspec to fetch all pull requests
+    git:
+      repo: https://gitlab.erc.monash.edu.au/hpc-team/gerp_provisioning.git
+      dest: /mnt/userdata/provisioning/src/gerp_provisioning
+    become: true
+  - name: Copy in getapps
+    copy:
+      src: getapps
+      dest: /mnt/userdata/strudel2/getapps
+      mode: "u+rxw,g+rx,o+rx"
+
+- hosts: 'gerp-*-login*, gerp-*-node*, gerp-*-nfs*, gerp-*-globus'
+  tasks:
+    - name: install cronjob
+      cron:
+        name: provision_users
+        cron_file: provision_users
+        user: root
+        day: '*'
+        hour: '*'
+        minute: '*/5'
+        job: /mnt/userdata/provisioning/provision.sh
+      become: true
