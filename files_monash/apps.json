@@ -2,7 +2,7 @@
   { "url": null,
     "name": "Install Cryosparc",
     "desc": "<br/>Install Cryosparc",
-    "startscript": "#!/bin/bash\n#SBATCH --partition=cryosparc_master\n#SBATCH --ntasks=1\n#SBATCH --cpus-per-task=4\n#SBATCH --mem=64GB\n#SBATCH --gres=gpu:1\n/mnt/userdata/cryosparc_files/install_monash.sbatch\n",
+    "startscript": "#!/bin/bash\n#SBATCH --partition=cryosparc_master\n#SBATCH --ntasks=1\n#SBATCH --cpus-per-task=4\n#SBATCH --mem=64GB\n#SBATCH --gres=gpu:1\n/mnt/userdata/cryosparc_files/install.sbatch\n",
     "appactions": [
     ],
     "instactions": [
@@ -33,7 +33,7 @@
   { "url": null,
     "name": "CryoSparc",
     "desc": "<br/> Run cryosparc",
-    "startscript": "#!/bin/bash\n#SBATCH --job-name=start-cryosparc\n#SBATCH --partition=cryosparc_master\n#SBATCH --ntasks=1\n#SBATCH --cpus-per-task=4\n#SBATCH --mem=64GB\n#SBATCH --time=14-00:00:00\n#SBATCH --signal=B:USR1@120\n/mnt/userdata/cryosparc_files/start_cryosparc_monash.sbatch\n",
+    "startscript": "#!/bin/bash\n#SBATCH --job-name=start-cryosparc\n#SBATCH --partition=cryosparc_master\n#SBATCH --ntasks=1\n#SBATCH --cpus-per-task=4\n#SBATCH --mem=64GB\n#SBATCH --time=14-00:00:00\n#SBATCH --signal=B:TERM@60\n/mnt/userdata/cryosparc_files/start_cryosparc.sbatch\n",
     "appactions": [
     ],
     "instactions": [ {
@@ -47,6 +47,43 @@
        {
            "name": "View log",
            "paramscmd": "/mnt/userdata/strudel2/strudel2_cluster/miniconda3/envs/s2_cluster/bin/wstool cat \"~/.strudel2*-{jobid}.out\"",
+           "client": {"cmd": null, "redir": "?token={token}" },
+           "states": ["RUNNING","Finished"]
+       },
+        {
+            "name": "View Usage",
+            "paramscmd": "/mnt/userdata/strudel2/strudel2_cluster/miniconda3/envs/s2_cluster/bin/wstool sacct -j {jobid}",
+            "client": {"cmd": null, "redir": "?token={token}" },
+            "states": ["Finished"]
+        },
+       {
+           "name": "Remove log",
+           "paramscmd": "rm ~/.strudel2-*{jobid}.out ; echo []",
+           "client": null,
+            "notunnel": true,
+           "states": ["Finished"]
+       }
+
+    ],
+    "localbind": true,
+    "applist": null
+  },
+  { "url": null,
+    "name": "LiberTEM",
+    "desc": "<br/>Run LiberTEM",
+    "startscript": "#!/bin/bash\n#SBATCH --partition=cryosparc_master\n#SBATCH --ntasks=1\n#SBATCH --cpus-per-task=8\n#SBATCH --mem=64GB\n#SBATCH --gres=gpu:1\n/mnt/userdata/cryosparc_files/start_libertem.sbatch\n",
+    "appactions": [
+    ],
+    "instactions": [
+       {
+        "name": "Connect",
+        "paramscmd": "cat ~/libertem.txt",
+        "client": {"cmd": null, "redir": "" },
+        "states": ["RUNNING"]
+       },
+       {
+           "name": "View log",
+           "paramscmd": "/mnt/userdata/strudel2/strudel2_cluster/miniconda3/envs/s2_cluster/bin/wstool  cat \"~/.strudel2*-{jobid}.out\"",
            "client": {"cmd": null, "redir": "?token={token}" },
            "states": ["RUNNING","Finished"]
        },
