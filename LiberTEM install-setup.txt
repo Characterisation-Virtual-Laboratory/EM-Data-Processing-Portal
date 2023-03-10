@@ -1,0 +1,22 @@
+LiberTEM Installation and setup.
+
+Installation:
+
+    cd /mnt/userdata
+
+    mkdir liberterm-0.10.0
+    sudo chown -R ubuntu:ubuntu liberterm-0.10.0
+
+    python3 -m venv liberterm-0.10.0/
+    source liberterm-0.10.0/bin/activate
+
+    pip install tornado==6.1 numpy==1.22.4 jupyter-client==7.3.3
+    pip install cupy-cuda11x
+    pip3 install libertem[torch]==0.10.0
+
+Running:
+source /mnt/userdata/liberterm-0.10.0/bin/activate
+libertem-server -h $HOSTNAME -p $PORT -d /mnt/userdata/$USER
+
+
+cryosparc_files/start_libertem.sbatch
