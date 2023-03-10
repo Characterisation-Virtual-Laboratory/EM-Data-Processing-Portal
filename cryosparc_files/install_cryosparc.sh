@@ -26,25 +26,35 @@ USER_EMAIL="$3"
 USER_FIRSTNAME="$4"
 USER_LASTNAME="$5"
 
-CRYOSPARC_HOME=/mnt/userdata/$USER/cryosparc
+CRYOSPARC_HOME=$HOME/cryosparc
 CRYOSPARC_HOSTNAME=$HOSTNAME
-CRYOSPARC_DB_PATH=/mnt/userdata/$USER/cryosparc/cryosparc_database
+CRYOSPARC_DB_PATH=$HOME/cryosparc/cryosparc_database
 CUDA_PATH=/usr/local/cuda-11.2/
+
+if [ $(ls -A "$CRYOSPARC_DB_PATH" | wc -l) -ne 0 ]; then
+  echo "CryoSPARC has been previously installed and started, exiting installation."
+  echo "This check has been added to prevent users from installing over an existing install."
+  exit 0
+fi
 
 mkdir $CRYOSPARC_HOME
 cd $CRYOSPARC_HOME
 
-if [ -f "cryosparc_master.tar.gz" ]; then
-    echo "cryosparc_master.tar.gz exists."
-else
-    curl -L https://get.cryosparc.com/download/master-latest/$LICENSE_ID -o cryosparc_master.tar.gz
-fi
+#Commenting out as there have been cases where the files exist but didn't download correctly.
+# if [ -f "cryosparc_master.tar.gz" ]; then
+#     echo "cryosparc_master.tar.gz exists."
+# else
+#     curl -L https://get.cryosparc.com/download/master-latest/$LICENSE_ID -o cryosparc_master.tar.gz
+# fi
+#
+# if [ -f "cryosparc_worker.tar.gz" ]; then
+#     echo "cryosparc_worker.tar.gz exists."
+# else
+#     curl -L https://get.cryosparc.com/download/worker-latest/$LICENSE_ID -o cryosparc_worker.tar.gz
+# fi
 
-if [ -f "cryosparc_worker.tar.gz" ]; then
-    echo "cryosparc_worker.tar.gz exists."
-else
-    curl -L https://get.cryosparc.com/download/worker-latest/$LICENSE_ID -o cryosparc_worker.tar.gz
-fi
+curl -L https://get.cryosparc.com/download/master-latest/$LICENSE_ID -o cryosparc_master.tar.gz
+curl -L https://get.cryosparc.com/download/worker-latest/$LICENSE_ID -o cryosparc_worker.tar.gz
 
 tar -zxvf cryosparc_master.tar.gz
 
@@ -93,12 +103,16 @@ cd $CRYOSPARC_HOME/cryosparc_worker/
 
 # Connect the worker to the master - 10 GB GPU
 cd gerp-cluster-10GB
+#Added as CryoSPARC v4 does not like $USER in the json.
+sed -i 's/$USER/'"$USER"'/' cluster_info.json
 ../../cryosparc_master/bin/cryosparcm cluster connect
 
 sleep 10s
 
 # Connect the worker to the master - 20 GB GPU
 cd ../gerp-cluster-20GB
+#Added as CryoSPARC v4 does not like $USER in the json.
+sed -i 's/$USER/'"$USER"'/' cluster_info.json
 ../../cryosparc_master/bin/cryosparcm cluster connect
 
 sleep 10s

@@ -4,7 +4,7 @@
 # determines the hostname, updates cryosparc_master config.sh
 # starts cryosparc and then connects workers (lanes)
 
-CRYOSPARC_HOME=/mnt/userdata/$USER/cryosparc
+CRYOSPARC_HOME=$HOME/cryosparc
 
 #Update config.sh and start master
 

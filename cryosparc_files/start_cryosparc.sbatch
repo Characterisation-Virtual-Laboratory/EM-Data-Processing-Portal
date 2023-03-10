@@ -6,22 +6,22 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=64GB
 # Set the file for output (stdout)
-#SBATCH --output=/mnt/userdata/%u/MyJob-%j.out
+#SBATCH --output=MyJob-%j.out
 #SBATCH --time=14-00:00:00
-#SBATCH --signal=B:USR1@120
+#SBATCH --signal=B:TERM@60
 
 stop_cryosparc() {
-  echo "Stopping CryoSPARC $(date)" >> /mnt/userdata/$USER/Cryosparc_Stopped.out
-  /mnt/userdata/$USER/cryosparc/cryosparc_master/bin/cryosparcm stop
+  echo "Stopping CryoSPARC $(date)" >> $HOME/Cryosparc_Stopped.out
+  $HOME/cryosparc/cryosparc_master/bin/cryosparcm stop
 }
 
-trap 'stop_cryosparc' USR1
+trap 'stop_cryosparc' TERM
 
 srun hostname
 
 #Determine the next free port for CryoSPARC
 source /mnt/userdata/portchecker/bin/activate
-export NEW_BASE_PORT=`port-checker --config /mnt/userdata/cryosparc_files/portchecker-config.yml  --site=monash`
+export NEW_BASE_PORT=`port-checker --config /mnt/userdata/cryosparc_files/portchecker-config.yml  --seed=$SLURM_JOB_ID`
 echo "CryoSPARC can be started on port: $NEW_BASE_PORT"
 
 /mnt/userdata/cryosparc_files/start_cryosparc.sh

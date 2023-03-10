@@ -1,8 +1,4 @@
 ---
-port_range:
-    monash: [39000, 39500, 49000, 49500, 59000, 59500]
-    qcif: [39000, 49000, 59000]
-
 log-level: logging.NOTSET
 log-files:
     port-checker: /mnt/userdata/portchecker/var/log/port-checker.log
